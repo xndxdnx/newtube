@@ -10,5 +10,4 @@ object Routes {
     const val EDIT = "edit/{videoId}"
     fun player(videoId: String) = "player/$videoId"
     fun edit(videoId: String) = "edit/$videoId"
-    
 }
