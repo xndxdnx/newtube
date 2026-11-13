@@ -14,6 +14,4 @@ class NewTubeApp : Application(), SingletonImageLoader.Factory {
             .crossfade(enable = true)
             .build()
     }
-
-
 }
