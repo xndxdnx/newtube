@@ -1,7 +1,7 @@
 package com.newtube.data.mapper
 
-import com.newtube.data.local.CommentEntity
-import com.newtube.data.local.VideoEntity
+import com.newtube.data.local.entity.CommentEntity
+import com.newtube.data.local.entity.VideoEntity
 import com.newtube.domain.model.Comment
 import com.newtube.domain.model.Video
 
