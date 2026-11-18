@@ -5,7 +5,13 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.request.crossfade
+import com.newtube.data.library.SampleSeeder
 import dagger.hilt.android.HiltAndroidApp
+import jakarta.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 @HiltAndroidApp
 class NewTubeApp : Application(), SingletonImageLoader.Factory {
@@ -14,4 +20,16 @@ class NewTubeApp : Application(), SingletonImageLoader.Factory {
             .crossfade(enable = true)
             .build()
     }
+
+    @Inject lateinit var seeder: SampleSeeder
+
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override fun onCreate() {
+        super.onCreate()
+        appScope.launch { seeder.seedIfEmpty() }
+    }
+
+
+
 }
