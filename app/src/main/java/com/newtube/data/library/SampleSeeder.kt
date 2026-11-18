@@ -8,7 +8,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// отвечает за автоматическое заполнение видеотеки при запуске нашего приложения
+// отвечает за автоматическое заполнение видеотеки при запуске нашего приложения когда нету данных
 
 @Singleton
 class SampleSeeder @Inject constructor(
@@ -22,6 +22,7 @@ class SampleSeeder @Inject constructor(
         login = SAMPLE_LOGIN,
         name = "media_studio"
     )
+
 
     suspend fun seedIfEmpty() = withContext(Dispatchers.IO) {
         if (dao.countAll() > 0) {
