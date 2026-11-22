@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.newtube.presentation.bottom_bar.BottomBar
 import com.newtube.presentation.bottom_bar.Placeholder
 import com.newtube.presentation.bottom_bar.bottomBarItems
+import com.newtube.presentation.feed.FeedScreen
 
 @Composable
 fun AppNav() {
@@ -44,7 +45,11 @@ fun AppNav() {
             modifier = Modifier
                 .padding(paddingValues)
         ) {
-            composable (Routes.FEED){ Placeholder("FEED") }
+            composable (Routes.FEED){
+                FeedScreen(
+                    onVideoClick = {}
+                )
+            }
             composable (Routes.RECORD){ Placeholder("RECORD") }
             composable (Routes.SHORTS){ Placeholder("SHORTS") }
             composable (Routes.PROFILE){ Placeholder("PROFILE") }

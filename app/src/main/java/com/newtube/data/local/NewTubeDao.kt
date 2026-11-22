@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.newtube.data.local.entity.CommentEntity
+import com.newtube.data.local.entity.ReactionEntity
 import com.newtube.data.local.entity.VideoEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -15,10 +16,10 @@ interface NewTubeDao {
 
     // получение видео с пагинацией (paging 3)
     @Query("SELECT * FROM videos WHERE isShort = 0 ORDER BY createdAt DESC")
-    suspend fun longVideoPaged(): PagingSource<Int, VideoEntity>
+    fun longVideoPaged(): PagingSource<Int, VideoEntity>
 
     @Query("SELECT * FROM videos WHERE isShort = 1 ORDER BY createdAt DESC")
-    suspend fun shortVideoPaged(): PagingSource<Int, VideoEntity>
+    fun shortVideoPaged(): PagingSource<Int, VideoEntity>
 
     // получение отдельных списков и видео
 
@@ -64,6 +65,25 @@ interface NewTubeDao {
 
     //edit videos and getting statistics
 
+
+    // ---- Reactions ----
+
+    @Query("SELECT * FROM reactions WHERE videoId = :videoId AND login = :login")
+    fun observeReaction(videoId: String, login: String): Flow<ReactionEntity?>
+
+    @Query("SELECT COUNT(*) FROM reactions WHERE videoId = :videoId AND liked = 1")
+    fun observeLikeCount(videoId: String): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM reactions WHERE videoId = :videoId AND disliked = 1")
+    fun observeDislikeCount(videoId: String): Flow<Int>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertReaction(reaction: ReactionEntity)
+
+    // ---- Comments ----
+
+
+
     @Query(
         """
         UPDATE videos SET
@@ -90,7 +110,10 @@ interface NewTubeDao {
         WHERE ownerLogin = :login and liked = 1
     """
     )
-    fun observeLikesFor(login: String): Flow<Long>
+
+
+
+    fun observeLikesFor(login: String): Flow<Int>
 
 
     @Query(
@@ -100,7 +123,7 @@ interface NewTubeDao {
         WHERE ownerLogin = :login
     """
     )
-    fun observeCommentsFor(login: String): Flow<Long>
+    fun observeCommentsFor(login: String): Flow<Int>
 
     @Query(
         """

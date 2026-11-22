@@ -8,58 +8,35 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// отвечает за автоматическое заполнение видеотеки при запуске нашего приложения когда нету данных
-
 @Singleton
 class SampleSeeder @Inject constructor(
-    @ApplicationContext
-    val context: Context,
-    val dao : NewTubeDao,
-    val videoLibrary: VideoLibrary
-){
-
-    val owner = Owner(
-        login = SAMPLE_LOGIN,
-        name = "media_studio"
-    )
-
+    @ApplicationContext private val context: Context,
+    private val dao: NewTubeDao,
+    private val library: VideoLibrary,
+) {
+    private val owner = Owner(login = SAMPLE_LOGIN, name = "Media Studio")
 
     suspend fun seedIfEmpty() = withContext(Dispatchers.IO) {
-        if (dao.countAll() > 0) {
-            return@withContext
-        }
-
-        val names = context.assets.list("samples").orEmpty().filter { names ->
-            names.endsWith(".mp4")
-        }.sorted()
-
+        if (dao.countAll() > 0) return@withContext
+        val names = context.assets.list("samples").orEmpty().filter { it.endsWith(".mp4") }.sorted()
         names.forEach { asset ->
-
             val base = asset.removeSuffix(".mp4")
-
-            val id = "sample_$base"
-
-            val target = videoLibrary.newVideoFile(id = id)
-
-            context.assets.open("samples/$asset").use { inputStream ->
-                target.outputStream().use { outputStream ->
-                    inputStream.copyTo(outputStream)
-                }
+            val id = "sample-$base"
+            val target = library.newVideoFile(id)
+            context.assets.open("samples/$asset").use { input ->
+                target.outputStream().use { input.copyTo(it) }
             }
-
-            val (title, description) = SAMPLE_TEXT[base] ?: base to "Test video"
-
-            videoLibrary.register(
+            val (title, description) = SAMPLE_TEXT[base] ?: (base to "Тестовый ролик")
+            library.register(
                 id = id,
                 file = target,
+                owner = owner,
                 title = title,
                 description = description,
-                owner = owner
             )
-
         }
-
     }
+
     companion object {
         const val SAMPLE_LOGIN = "media_studio"
 
@@ -76,6 +53,3 @@ class SampleSeeder @Inject constructor(
         )
     }
 }
-
-
-

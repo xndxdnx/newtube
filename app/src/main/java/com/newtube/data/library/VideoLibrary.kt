@@ -36,6 +36,7 @@ class VideoLibrary @Inject constructor(
         File(context.filesDir, "library/covers").apply { mkdirs() }
     }
 
+
     fun newVideoFile(
         id: String = UUID.randomUUID().toString()
     ): File = File(videosDir, "$id.mp4")
@@ -55,6 +56,30 @@ class VideoLibrary @Inject constructor(
             target
         }
     }
+
+    suspend fun extractFrames(
+        videoPath: String,
+        id: String,
+        duration: Long,
+        count: Int = 5
+    ): List<String> =
+        withContext(Dispatchers.IO) {
+            val retriever = MediaMetadataRetriever()
+            try {
+                retriever.setDataSource(videoPath)
+                (0 until count).mapNotNull { i ->
+                    val file = File(coversDir, "${id}_frame$i.jpg")
+                    if (file.exists()) return@mapNotNull file.absolutePath
+                    val at = (duration * 1000L * (i + 0.5) / count).toLong()
+                    val frame = retriever.getFrameAtTime(at, MediaMetadataRetriever.OPTION_CLOSEST_SYNC) ?: return@mapNotNull null
+                    FileOutputStream(file).use { frame.compress(Bitmap.CompressFormat.JPEG, 88, it) }
+                    frame.recycle()
+                    file.absolutePath
+                }
+            } finally {
+                retriever.release()
+            }
+        }
 
     suspend fun register(
         owner: Owner,
